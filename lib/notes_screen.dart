@@ -59,7 +59,6 @@ class _NotesScreenState extends State<NotesScreen> {
       body: ListView.builder(
         itemCount: _values.length,
         itemBuilder: (context, index) {
-          // DateTime createdAt = DateTime.parse(_values[index]['created_at']);
           DateTime updatedAt = DateTime.parse(_values[index]['updated_at']);
           return GestureDetector(
             onTap: () {
