@@ -92,7 +92,6 @@ class _NotesScreenState extends State<NotesScreen> {
                     ],
                   ),
                     // SizedBox(height: 8.0),
-                    // Text('Created at: ${formattedDateTime(createdAt)}'),
                     Text('${formattedDateTime(updatedAt)}'),
                   ],
                 ),
