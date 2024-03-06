@@ -4,7 +4,7 @@ import 'package:path/path.dart';
 
 class DatabaseHelper {
   static Database? _database;
-  //1.Creation of database
+  //1.Setup of database
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await initDatabase();
@@ -17,6 +17,7 @@ class DatabaseHelper {
     return await openDatabase(
       path,
       version: 1,
+      //2.1.Creation of database
       onCreate: (Database db, int version) async {
         await db.execute('''
           CREATE TABLE my_table (
