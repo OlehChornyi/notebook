@@ -14,7 +14,7 @@ class NoteApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Notebook',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         useMaterial3: true,
       ),
       home: const NotesScreen(),
