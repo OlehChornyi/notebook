@@ -21,7 +21,7 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           IconButton(
-            icon: const Icon(Icons.note_add_outlined),
+            icon: const Icon(Icons.edit),
             onPressed: () async {
               String value = myController.text;
               await DatabaseHelper().insertValue(value);

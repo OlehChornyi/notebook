@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'create_screen.dart';
 import 'detail_screen.dart';
@@ -46,12 +48,50 @@ class _NotesScreenState extends State<NotesScreen> {
     return '${dateTime.day}-${dateTime.month}-${dateTime.year} ${dateTime.hour}:${dateTime.minute}';
   }
 
+  void _confirmDeleteDialog(int id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Delete'),
+          content: Text('Are you sure you want to delete this note?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                _deleteNote(id);
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _deleteNote(int id) {
+    // Perform the delete operation here
+    DatabaseHelper().deleteValue(id);
+    // After deleting, you may want to refresh the list
+    // _deleteValue(_values[index]['id']);
+    _loadValues();
+  }
+
 //7. Build with Scaffold and AppBar
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: Icon(Icons.close),
+          onPressed: () => exit(0),
+        ),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('All notes'),
       ),
@@ -85,7 +125,7 @@ class _NotesScreenState extends State<NotesScreen> {
                       const SizedBox(width: 8.0),
                       IconButton(
                         onPressed: () {
-                          _deleteValue(_values[index]['id']);
+                          _confirmDeleteDialog(_values[index]['id']);
                         },
                         icon: const Icon(Icons.delete),
                       ),
