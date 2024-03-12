@@ -39,6 +39,10 @@ class _EditScreenState extends State<EditScreen> {
       appBar: AppBar(
         title: const Text('Edit my note'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
@@ -75,20 +79,11 @@ class _EditScreenState extends State<EditScreen> {
                       controller: _textEditingController,
                       // decoration: const InputDecoration(labelText: 'Enter new value'),
                     ),
-                    // const SizedBox(height: 16.0),
-                    // //9.A button to update the record in the table
-                    // ElevatedButton(
-                    //   onPressed: () {
-                    //     _updateRecord(context, widget.recordId);
-                    //     _navigateToDetailScreen(widget.recordId);
-                    //   },
-                    //   child: const Text('Update Note'),
-                    // ),
                   ],
                 ),
               ),
             );
-            //10. In case the value from the table is still loading
+            //9. In case the value from the table is still loading
           } else {
             return const Center(
               child: CircularProgressIndicator(),
@@ -99,4 +94,3 @@ class _EditScreenState extends State<EditScreen> {
     );
   }
 }
-

@@ -17,7 +17,7 @@ class DatabaseHelper {
     return await openDatabase(
       path,
       version: 1,
-      //2.1.Creation of database
+      //2.1.Creation of my_table
       onCreate: (Database db, int version) async {
         await db.execute('''
           CREATE TABLE my_table (
@@ -27,10 +27,19 @@ class DatabaseHelper {
             updated_at TEXT
           )
         ''');
+        //2.2. Creation of archive_table
+        await db.execute('''
+          CREATE TABLE archive_table (
+            id INTEGER PRIMARY KEY,
+            value TEXT,
+            created_at TEXT,
+            updated_at TEXT
+          )
+        ''');
       },
     );
   }
-  //3.Insert values in database table
+  //3.Insert values in  my_table
   Future<void> insertValue(String value) async {
     final Database db = await database;
     await db.insert(
@@ -43,12 +52,29 @@ class DatabaseHelper {
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
-  //4.Receive values from database table
+  //3.1. Insert values in  archive_table and delete from my_table
+  Future<void> deleteNoteAndArchive(int id) async {
+    final Database db = await database;
+    // Get the note to be deleted
+    final noteToDelete = await db.query('my_table', where: 'id = ?', whereArgs: [id]);
+    if (noteToDelete.isNotEmpty) {
+      // Insert the note into the archive table
+      await db.insert('archive_table', noteToDelete.first);
+      // Delete the note from the main table
+      await db.delete('my_table', where: 'id = ?', whereArgs: [id]);
+    }
+  }
+  //4.Receive values from my_table
   Future<List<Map<String, dynamic>>> getValues() async {
     final Database db = await database;
     return await db.query('my_table');
   }
-  //5.Delete values from database table
+  //4.1. Receive values from archive_table
+  Future<List<Map<String, dynamic>>> getArchivedNotes() async {
+    final Database db = await database;
+    return await db.query('archive_table');
+  }
+  //5.Delete values from  my_table
   Future<void> deleteValue(int id) async {
     final Database db = await database;
     await db.delete(
@@ -57,7 +83,16 @@ class DatabaseHelper {
       whereArgs: [id],
     );
   }
-  //6.Get specific value from database table
+  //5.1. Delete values from archive_table
+  Future<void> deleteFromArchive(int id) async {
+    final Database db = await database;
+    await db.delete(
+      'archive_table',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+  //6.Get specific value from my_table
   Future<String?> getDetailById(int id) async {
     final Database db = await database;
     List<Map<String, dynamic>> result = await db.query(
@@ -73,7 +108,23 @@ class DatabaseHelper {
       return null; // No record found for the given ID
     }
   }
-  //7.Update specific value in database table
+  //6.1. Get specific value from archive_table
+  Future<String?> getArchiveDetailById(int id) async {
+    final Database db = await database;
+    List<Map<String, dynamic>> result = await db.query(
+      'archive_table',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (result.isNotEmpty) {
+      // Assuming 'value' is the column name in my_table
+      return result[0]['value'].toString();
+    } else {
+      return null; // No record found for the given ID
+    }
+  }
+  //7.Update specific value in my_table
   void updateRecord(int id, String newValue) async {
     final Database db = await database;
     await db.update(

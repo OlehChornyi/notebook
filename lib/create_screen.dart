@@ -52,23 +52,6 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
                 controller: myController,
                 maxLines: null,
               ),
-              //5.Button to save the not and get back to NotesScreen
-              // ElevatedButton(
-              //   onPressed: () async {
-              //     String value = myController.text;
-              //     await DatabaseHelper().insertValue(value);
-              //     myController.clear();
-              //     ScaffoldMessenger.of(context).showSnackBar(
-              //         const SnackBar(
-              //           content: Text('New note has been created'),
-              //         ));
-              //     Navigator.push(
-              //       context,
-              //       MaterialPageRoute(builder: (context) => const NotesScreen()),
-              //     );
-              //   },
-              //   child: const Text('Save note'),
-              // ),
             ],
           ),
         ),
