@@ -1,42 +1,59 @@
 import 'package:flutter/material.dart';
-import 'db_helper.dart';
-import 'archive_screen.dart';
+import 'catalog_detail_screen.dart';
+import 'package:notebook/screens/notes_screen.dart';
+import '../db_helper.dart';
+import 'edit_screen.dart';
 
 //1.Stateful widget with parameter and constructor
-class ArchiveDetailScreen extends StatefulWidget {
+class DetailScreen extends StatefulWidget {
   final int recordId;
-  const ArchiveDetailScreen({super.key, required this.recordId});
+  final String? catalogName;
+  const DetailScreen(this.recordId, this.catalogName);
   @override
-  _ArchiveDetailScreenState createState() => _ArchiveDetailScreenState();
+  _DetailScreenState createState() => _DetailScreenState();
 }
-
 //2.Extension with future parameter
-class _ArchiveDetailScreenState extends State<ArchiveDetailScreen> {
+class _DetailScreenState extends State<DetailScreen> {
   late Future<String?> _detailFuture;
 //3.Screen state initialization with specific value from the table
   @override
   void initState() {
     super.initState();
-    _detailFuture = DatabaseHelper().getArchiveDetailById(widget.recordId);
+    _detailFuture = DatabaseHelper().getDetailById(widget.recordId);
   }
-//4.Build with Scaffold, AppBar
+  //4.A method that returns a route to the EditScreen
+  void _editRecord(BuildContext context, int recordId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => EditScreen(recordId, widget.catalogName!)),
+    );
+  }
+//5.Build with Scaffold, AppBar and edit button
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Archive detail"),
+        title: const Text("Note's detail"),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ArchiveScreen()),
+              MaterialPageRoute(builder: (context) => CatalogDetailScreen(widget.catalogName!)),
             );
           },
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () {
+              _editRecord(context, widget.recordId);
+            },
+          ),
+        ],
       ),
-      //5.Body with builder that returns a specific value from the table
+      //6.Body with builder that returns a specific value from the table
       body: SingleChildScrollView(
         child: FutureBuilder<String?>(
           future: _detailFuture,
@@ -54,7 +71,7 @@ class _ArchiveDetailScreenState extends State<ArchiveDetailScreen> {
                   child: Text(
                     // 'Detail for Record ID ${widget.recordId}:\n${snapshot.data}',
                     '${snapshot.data}',
-                    style: const TextStyle(fontSize: 20.0),
+                  style: const TextStyle(fontSize: 20.0),
                   ),
                 ),
               );

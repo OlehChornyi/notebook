@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:notebook/archive_detail_screen.dart';
+import 'package:notebook/screens/archive_detail_screen.dart';
+import '../main.dart';
+import 'catalog_screen.dart';
 import 'notes_screen.dart';
-import 'db_helper.dart';
+import '../db_helper.dart';
 
 //1. Stateful widget
 class ArchiveScreen extends StatefulWidget {
@@ -81,7 +83,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
           icon: Icon(Icons.arrow_back),
           onPressed: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => NotesScreen()),
+            MaterialPageRoute(builder: (context) => CatalogScreen()),
           ),
         ),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,

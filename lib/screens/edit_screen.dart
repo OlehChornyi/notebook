@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'db_helper.dart';
+import '../db_helper.dart';
 import 'detail_screen.dart';
 
 //1.Stateful widget with a parameter and constructor
 class EditScreen extends StatefulWidget {
   final int recordId;
-  const EditScreen(this.recordId);
+  final String catalogName;
+  const EditScreen(this.recordId, this.catalogName);
   @override
   _EditScreenState createState() => _EditScreenState();
 }
@@ -29,7 +30,7 @@ class _EditScreenState extends State<EditScreen> {
   void _navigateToDetailScreen(int id) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => DetailScreen(recordId: id)),
+      MaterialPageRoute(builder: (context) => DetailScreen(id, widget.catalogName)),
     );
   }
 //5. Build with Scaffold and AppBar

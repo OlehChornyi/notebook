@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
+import 'catalog_detail_screen.dart';
 import 'notes_screen.dart';
-import 'db_helper.dart';
+import '../color_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../db_helper.dart';
 
 //1.Stateful widget
 class CreateNoteScreen extends StatefulWidget {
-  const CreateNoteScreen({super.key});
+  final String catalogName;
+
+  CreateNoteScreen(this.catalogName);
   @override
   State<CreateNoteScreen> createState() => _CreateNoteScreenState();
 }
 //2.Extension with controller and db values
 class _CreateNoteScreenState extends State<CreateNoteScreen> {
   final myController = TextEditingController();
-  List<Map<String, dynamic>> dbValues = [];
 //3.Build with Scaffold and AppBar
   @override
   Widget build(BuildContext context) {
@@ -24,7 +29,9 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
             icon: const Icon(Icons.edit),
             onPressed: () async {
               String value = myController.text;
-              await DatabaseHelper().insertValue(value);
+              // String catalogName = 'General notes';
+              // final catalogNames = Provider.of<CatalogProvider>(context).catalogNames;
+              await DatabaseHelper().insertValue(value, widget.catalogName);
               myController.clear();
               ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -32,7 +39,7 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
                   ));
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const NotesScreen()),
+                MaterialPageRoute(builder: (context) => CatalogDetailScreen(widget.catalogName)),
               );
             },
           ),
