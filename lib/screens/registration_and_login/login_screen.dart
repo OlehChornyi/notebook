@@ -1,4 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:notebook/screens/catalog_screen.dart';
+import 'registration_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 tag: 'logo',
                 child: Container(
                   height: 200,
-                  child: Icon(Icons.note),
+                  child: Image.asset('images/notebook-2.png'),
                 ),
               ),
             ),
@@ -36,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
               keyboardType: TextInputType.emailAddress,
               textAlign: TextAlign.center,
               onChanged: (value) {
-                email:
+                email=
                 value;
               },
               decoration: InputDecoration(
@@ -49,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
               obscureText: true,
               textAlign: TextAlign.center,
               onChanged: (value) {
-                password:
+                password=
                 value;
               },
               decoration: InputDecoration(
@@ -57,14 +60,20 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             SizedBox(height: 24),
-            TextButton(onPressed: () async {
+            ElevatedButton(onPressed: () async {
               setState(() {
                 showSpinner = true;
               });
               try {
                 final user = await _auth.signInWithEmailAndPassword(email: email, password: password);
                 if (user != null) {
-                  //Navigator - catalog screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          CatalogScreen(),
+                    ),
+                  );
                 }
                 setState(() {
                   showSpinner = false;
@@ -73,6 +82,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 print(e);
               }
             }, child: Text('Log In')),
+            SizedBox(height: 24),
+            TextButton(onPressed: () {Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    RegistrationScreen(),
+              ),
+            );}, child: Text("Don't have an account? Register!")),
           ],
         ),
       ),

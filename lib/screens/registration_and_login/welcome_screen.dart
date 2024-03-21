@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'registration_screen.dart';
+import 'login_screen.dart';
+import 'package:notebook/color_provider.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -19,20 +23,45 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           children: [
             Row(
               children: [
-                Hero(tag: 'logo', child: Icon(Icons.note)),
+                Hero(
+                  tag: 'logo',
+                  child: Container(
+                    child: Image.asset('images/notebook-2.png'),
+                    height: 100,
+
+                  ),
+                ),
                 DefaultTextStyle(
                   style: TextStyle(
                     fontSize: 45,
                     fontWeight: FontWeight.w900,
-                    color: Colors.black54,
+                    color: Provider.of<ColorProvider>(context).selectedColor,
                   ),
                   child: Text('Notebook'),
                 ),
               ],
             ),
             SizedBox(height: 48),
-            TextButton(onPressed: () {}, child: Text('Log In')),
-            TextButton(onPressed: () {}, child: Text('Register')),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LoginScreen(),
+                    ),
+                  );
+                },
+                child: Text('Log In')),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RegistrationScreen(),
+                    ),
+                  );
+                },
+                child: Text('Register')),
           ],
         ),
       ),

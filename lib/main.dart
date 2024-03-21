@@ -1,5 +1,8 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:notebook/firebase_options.dart';
 import 'screens/catalog_screen.dart';
+import 'screens/registration_and_login/welcome_screen.dart';
 import 'screens/notes_screen.dart';
 import 'color_provider.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +15,9 @@ import 'db_helper.dart';
 //1.Main method of the app
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   SharedPreferences prefs = await SharedPreferences.getInstance();
   // runApp(ChangeNotifierProvider(
   //     create: (context) => CatalogProvider(), child: NoteApp(prefs)));
@@ -38,7 +44,7 @@ class NoteApp extends StatelessWidget {
             seedColor: Provider.of<ColorProvider>(context).selectedColor),
         useMaterial3: true,
       ),
-      home: CatalogScreen(),
+      home: WelcomeScreen(),
     );
   }
 }

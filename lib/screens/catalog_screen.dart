@@ -1,6 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:notebook/screens/registration_and_login/welcome_screen.dart';
 import '../color_provider.dart';
 import 'archive_screen.dart';
 import 'catalog_detail_screen.dart';
@@ -13,6 +14,7 @@ class CatalogScreen extends StatefulWidget {
 
 class _CatalogScreenState extends State<CatalogScreen> {
   // List<String> catalogNames = [];
+  final _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -90,89 +92,107 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 _navigateToArchive(context); // Close the drawer
               },
             ),
-          ],
-        ),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            ListTile(title: Text('General notes'),
-              tileColor: Theme.of(context).colorScheme.surfaceVariant,
+            ListTile(
+              title: Text('Sign Out'),
               onTap: () {
+                _auth.signOut();
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        NotesScreen(),
+                        WelcomeScreen(),
                   ),
                 );
               },
-            ),
-            ReorderableListView.builder(
-              shrinkWrap: true,
-              itemCount: Provider.of<CatalogProvider>(context).catalogNames.length,
-              itemBuilder: (context, index) {
-                final catalogNames = Provider.of<CatalogProvider>(context).catalogNames;
-                return Dismissible(
-                  key: Key(catalogNames[index]),
-                  direction: DismissDirection.endToStart,
-                  onDismissed: (direction) {
-                    Provider.of<CatalogProvider>(context, listen: false).removeCatalog(catalogNames[index]);
-                  },
-                  background: Container(
-                    alignment: AlignmentDirectional.centerEnd,
-                    color: Colors.red,
-                    child: Icon(Icons.delete, color: Colors.white),
-                  ),
-                  child: ListTile(
-                    tileColor: Theme.of(context).colorScheme.surfaceVariant,
-                    title: Text(catalogNames[index]),
-                    onTap: () {
-                      // Navigate to the catalog detail screen with the selected catalog name
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              CatalogDetailScreen(catalogNames[index]),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
-              onReorder: (oldIndex, newIndex) {
-                setState(() {
-                  if (newIndex > oldIndex) {
-                    newIndex -= 1;
-                  }
-                  final catalogProvider = Provider.of<CatalogProvider>(context, listen: false);
-                  final String item = catalogProvider.catalogNames.removeAt(oldIndex);
-                  catalogProvider.catalogNames.insert(newIndex, item);
-                  catalogProvider.saveCatalogNames();
-                });
-              },
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                // Open dialog to add a new catalog
-                String newCatalogName = await showDialog(
-                  context: context,
-                  builder: (context) => AddCatalogDialog(),
-                );
-
-                // Add the new catalog name to the list if not null
-                if (newCatalogName != null && newCatalogName.isNotEmpty) {
-                  setState(() {
-                    Provider.of<CatalogProvider>(context, listen: false).addCatalog(newCatalogName);
-                    Provider.of<CatalogProvider>(context, listen: false).saveCatalogNames(); // Save catalog names to shared preferences
-                    // Save catalog names to shared preferences
-                  });
-                }
-              },
-              child: Text('Create Catalog'),
             ),
           ],
+        ),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              ListTile(title: Text('General notes'),
+                tileColor: Theme.of(context).colorScheme.surfaceVariant,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          NotesScreen(),
+                    ),
+                  );
+                },
+              ),
+              ReorderableListView.builder(
+                shrinkWrap: true,
+                itemCount: Provider.of<CatalogProvider>(context).catalogNames.length,
+                itemBuilder: (context, index) {
+                  final catalogNames = Provider.of<CatalogProvider>(context).catalogNames;
+                  return Dismissible(
+                    key: Key(catalogNames[index]),
+                    direction: DismissDirection.endToStart,
+                    onDismissed: (direction) {
+                      Provider.of<CatalogProvider>(context, listen: false).removeCatalog(catalogNames[index]);
+                    },
+                    background: Container(
+                      alignment: AlignmentDirectional.centerEnd,
+                      color: Colors.red,
+                      child: Icon(Icons.delete, color: Colors.white),
+                    ),
+                    child: ListTile(
+                      tileColor: Theme.of(context).colorScheme.surfaceVariant,
+                      title: Text(catalogNames[index]),
+                      onTap: () {
+                        // Navigate to the catalog detail screen with the selected catalog name
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                CatalogDetailScreen(catalogNames[index]),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+                onReorder: (oldIndex, newIndex) {
+                  setState(() {
+                    if (newIndex > oldIndex) {
+                      newIndex -= 1;
+                    }
+                    final catalogProvider = Provider.of<CatalogProvider>(context, listen: false);
+                    final String item = catalogProvider.catalogNames.removeAt(oldIndex);
+                    catalogProvider.catalogNames.insert(newIndex, item);
+                    catalogProvider.saveCatalogNames();
+                  });
+                },
+              ),
+              SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () async {
+                  // Open dialog to add a new catalog
+                  String newCatalogName = await showDialog(
+                    context: context,
+                    builder: (context) => AddCatalogDialog(),
+                  );
+
+                  // Add the new catalog name to the list if not null
+                  if (newCatalogName != null && newCatalogName.isNotEmpty) {
+                    setState(() {
+                      Provider.of<CatalogProvider>(context, listen: false).addCatalog(newCatalogName);
+                      Provider.of<CatalogProvider>(context, listen: false).saveCatalogNames(); // Save catalog names to shared preferences
+                      // Save catalog names to shared preferences
+                    });
+                  }
+                },
+                child: Text('Create Catalog'),
+              ),
+            ],
+          ),
         ),
       ),
     );
