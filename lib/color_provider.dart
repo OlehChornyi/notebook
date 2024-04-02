@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -52,15 +54,38 @@ class CatalogProvider extends ChangeNotifier {
   }
 
   // Load catalog names from shared preferences
+  // Future<void> loadCatalogNames() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   List<String>? storedCatalogNames = prefs.getStringList(_catalogNamesKey);
+  //   if (storedCatalogNames != null) {
+  //     _catalogNames = storedCatalogNames;
+  //   }
+  //   notifyListeners();
+  // }
   Future<void> loadCatalogNames() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String>? storedCatalogNames = prefs.getStringList(_catalogNamesKey);
-    if (storedCatalogNames != null) {
-      _catalogNames = storedCatalogNames;
-    }
-    notifyListeners();
-  }
+    CollectionReference notes = FirebaseFirestore.instance.collection('notes');
+    String? uid = FirebaseAuth
+        .instance.currentUser?.uid;
+    try {
+      QuerySnapshot snapshot = await notes.where('userId', isEqualTo: uid).get();
 
+      // Use a Set to store unique catalog names
+      Set<String> catalogNames = Set();
+
+      snapshot.docs.forEach((doc) {
+        String catalogName = doc['catalog_name'];
+        if (catalogName != 'Archive') {
+          catalogNames.add(catalogName);
+        }
+      });
+
+      // Convert the Set to a List
+      _catalogNames = catalogNames.toList();
+      notifyListeners();
+    } catch (error) {
+      print("Failed to load catalog names: $error");
+    }
+  }
   // Save catalog names to shared preferences
   Future<void> saveCatalogNames() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -78,6 +103,11 @@ class CatalogProvider extends ChangeNotifier {
   void removeCatalog(String name) {
     _catalogNames.remove(name);
     saveCatalogNames();
+    notifyListeners();
+  }
+  // Method to delete all values from catalogNames
+  void clearCatalogNames() {
+    _catalogNames.clear();
     notifyListeners();
   }
 }

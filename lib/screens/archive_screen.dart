@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:notebook/screens/archive_detail_screen.dart';
-import '../main.dart';
 import 'catalog_screen.dart';
-import 'notes_screen.dart';
 import '../db_helper.dart';
+import 'package:notebook/fb_helper.dart';
 
 //1. Stateful widget
 class ArchiveScreen extends StatefulWidget {
@@ -11,6 +10,7 @@ class ArchiveScreen extends StatefulWidget {
   @override
   State<ArchiveScreen> createState() => _ArchiveScreenState();
 }
+
 //2. Extension with list of maps
 class _ArchiveScreenState extends State<ArchiveScreen> {
   List<Map<String, dynamic>> _values = [];
@@ -20,32 +20,33 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
     super.initState();
     _loadValues();
   }
+
 //4. A method to load all values from the db table
   Future<void> _loadValues() async {
-    List<Map<String, dynamic>> values = await DatabaseHelper().getArchivedNotes();
+    List<Map<String, dynamic>> values =
+        await FirebaseHelper().fetchValuesByCatalog('Archive');
+
     setState(() {
       _values = values;
     });
   }
 
-//5. A method to delete a single value from the db archive table
-  void _deleteNote(int id) {
-    DatabaseHelper().deleteFromArchive(id);
-    _loadValues();
-  }
 //6. Helper method to navigate to the detail screen
   void _navigateToDetailScreen(int id) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ArchiveDetailScreen(recordId: id)),
+      MaterialPageRoute(
+          builder: (context) => ArchiveDetailScreen(recordId: id)),
     );
   }
+
   //7. Creation time formating
   String formattedDateTime(DateTime dateTime) {
     return '${dateTime.day}-${dateTime.month}-${dateTime.year} ${dateTime.hour}:${dateTime.minute}';
   }
+
 //8. Alert dialog with permanent delete confirmation
-  void _confirmDeleteDialog(int id) {
+  void _confirmDeleteDialog(String id) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -65,7 +66,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => ArchiveScreen()),
-                );// Close the dialog
+                ); // Close the dialog
               },
               child: Text('Delete'),
             ),
@@ -74,6 +75,13 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
       },
     );
   }
+
+  void _deleteNote(String id) {
+    // DatabaseHelper().deleteFromArchive(id);
+    FirebaseHelper().deleteValue(id);
+    _loadValues();
+  }
+
 //9. Build with Scaffold and AppBar
   @override
   Widget build(BuildContext context) {

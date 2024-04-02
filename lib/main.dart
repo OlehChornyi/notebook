@@ -7,10 +7,6 @@ import 'screens/notes_screen.dart';
 import 'color_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'screens/archive_screen.dart';
-import 'screens/catalog_detail_screen.dart';
-import 'db_helper.dart';
-
 
 //1.Main method of the app
 Future<void> main() async {

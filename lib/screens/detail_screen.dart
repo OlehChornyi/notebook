@@ -3,10 +3,11 @@ import 'catalog_detail_screen.dart';
 import 'package:notebook/screens/notes_screen.dart';
 import '../db_helper.dart';
 import 'edit_screen.dart';
+import 'package:notebook/fb_helper.dart';
 
 //1.Stateful widget with parameter and constructor
 class DetailScreen extends StatefulWidget {
-  final int recordId;
+  final String recordId;
   final String? catalogName;
   const DetailScreen(this.recordId, this.catalogName);
   @override
@@ -14,15 +15,15 @@ class DetailScreen extends StatefulWidget {
 }
 //2.Extension with future parameter
 class _DetailScreenState extends State<DetailScreen> {
-  late Future<String?> _detailFuture;
+  // late Future<String?> _detailFuture;
 //3.Screen state initialization with specific value from the table
   @override
   void initState() {
     super.initState();
-    _detailFuture = DatabaseHelper().getDetailById(widget.recordId);
+    // _detailFuture = DatabaseHelper().getDetailById(widget.recordId);
   }
   //4.A method that returns a route to the EditScreen
-  void _editRecord(BuildContext context, int recordId) {
+  void _editRecord(BuildContext context, String recordId) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => EditScreen(recordId, widget.catalogName!)),
@@ -55,29 +56,33 @@ class _DetailScreenState extends State<DetailScreen> {
       ),
       //6.Body with builder that returns a specific value from the table
       body: SingleChildScrollView(
-        child: FutureBuilder<String?>(
-          future: _detailFuture,
+        child: FutureBuilder<Map<String, dynamic>>(
+          future: FirebaseHelper().fetchValueById(widget.recordId) as Future<Map<String, dynamic>>,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
+              return Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
-            } else if (!snapshot.hasData || snapshot.data == null) {
-              return const Center(child: Text('No data found for the given ID.'));
+            } else if (snapshot.data == null) {
+              return Center(child: Text('Document not found'));
             } else {
-              return Container(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    // 'Detail for Record ID ${widget.recordId}:\n${snapshot.data}',
-                    '${snapshot.data}',
-                  style: const TextStyle(fontSize: 20.0),
-                  ),
+              Map<String, dynamic>? data = snapshot.data;
+              return Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${data!['value']}',
+                      style: TextStyle(fontSize: 18.0),
+                    ),
+                  ],
                 ),
               );
             }
           },
         ),
+
       ),
     );
   }

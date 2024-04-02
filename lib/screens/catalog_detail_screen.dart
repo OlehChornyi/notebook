@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notebook/fb_helper.dart';
 import 'catalog_screen.dart';
 import 'notes_screen.dart';
 import '../color_provider.dart';
@@ -30,7 +31,8 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
 
   Future<void> _loadValues() async {
     List<Map<String, dynamic>> values =
-        await DatabaseHelper().getNotesByCatalogName(widget.catalogName);
+        // await DatabaseHelper().getNotesByCatalogName(widget.catalogName);
+    await FirebaseHelper().fetchValuesByCatalog(widget.catalogName);
     setState(() {
       _values = values;
     });
@@ -38,11 +40,11 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
 
   //7. Time format
   String formattedDateTime(DateTime dateTime) {
-    return '${dateTime.day}-${dateTime.month}-${dateTime.year} ${dateTime.hour}:${dateTime.minute}';
+    return '${dateTime.day}-${dateTime.month}-${dateTime.year} ${dateTime.hour+3}:${dateTime.minute}';
   }
 
   //6. Helper method to navigate to the detail screen
-  void _navigateToDetailScreen(int id) {
+  void _navigateToDetailScreen(String id) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => DetailScreen(id, widget.catalogName)),
@@ -50,11 +52,10 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
   }
 
   //8. Alert dialog with delete confirmation
-  void _confirmDeleteDialog(int id) {
+  void _confirmDeleteDialog(String id) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        // final catalogNames = Provider.of<CatalogProvider>(context).catalogNames;
         return AlertDialog(
           title: Text('Confirm Delete'),
           content: Text('Are you sure you want to delete this note?'),
@@ -67,8 +68,8 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
             ),
             TextButton(
               onPressed: () {
-                _deleteNoteAndArchive(id);
-                // _deleteNote(id);
+                // _deleteNoteAndArchive(id);
+                FirebaseHelper().updateCatalogName(id, 'Archive');
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -86,7 +87,14 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
     );
   }
 
-  void _confirmMoveDialog(int id) {
+  //5. A method to delete from notes screen and archive note
+  void _deleteNoteAndArchive(int id) {
+    DatabaseHelper().deleteNoteAndArchive(id);
+    // Refresh the UI or update the state to reflect the changes
+    setState(() {});
+  }
+
+  void _confirmMoveDialog(String id) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -144,7 +152,8 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
                   onPressed: () {
                     // Move to catalog here
                     String selectedCatalog = catalogProvider.selectedCatalog;
-                    DatabaseHelper().updateCatalogName(id, selectedCatalog);
+                    // DatabaseHelper().updateCatalogName(id, selectedCatalog);
+                    FirebaseHelper().updateCatalogName(id, selectedCatalog);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -161,13 +170,6 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
         );
       },
     );
-  }
-
-  //5. A method to delete from notes screen and archive note
-  void _deleteNoteAndArchive(int id) {
-    DatabaseHelper().deleteNoteAndArchive(id);
-    // Refresh the UI or update the state to reflect the changes
-    setState(() {});
   }
 
   @override

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'catalog_detail_screen.dart';
+import 'package:notebook/fb_helper.dart';
 import 'notes_screen.dart';
 import '../color_provider.dart';
 import 'package:provider/provider.dart';
@@ -29,9 +30,8 @@ class _CreateNoteScreenState extends State<CreateNoteScreen> {
             icon: const Icon(Icons.edit),
             onPressed: () async {
               String value = myController.text;
-              // String catalogName = 'General notes';
-              // final catalogNames = Provider.of<CatalogProvider>(context).catalogNames;
-              await DatabaseHelper().insertValue(value, widget.catalogName);
+              await FirebaseHelper().insertValue(value, widget.catalogName);
+              // await DatabaseHelper().insertValue(value, widget.catalogName);
               myController.clear();
               ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(

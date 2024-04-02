@@ -1,6 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:notebook/screens/catalog_screen.dart';
+import 'package:provider/provider.dart';
+import '../../color_provider.dart';
+import '../catalog_detail_screen.dart';
 import 'login_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -66,14 +69,30 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               });
               try {
                 final newUser = await _auth.createUserWithEmailAndPassword(email: email, password: password);
-              if (newUser != null) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        CatalogScreen(),
-                  ),
-                );
+                final catalogNames =
+                    Provider.of<CatalogProvider>(context, listen: false)
+                        .catalogNames;
+                if (newUser != null) {
+                if (catalogNames.isNotEmpty) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CatalogScreen(),
+                    ),
+                  );
+                } else {
+                  Provider.of<CatalogProvider>(context, listen: false)
+                      .addCatalog('Notes');
+                  Provider.of<CatalogProvider>(context, listen: false)
+                      .saveCatalogNames();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          CatalogDetailScreen(catalogNames[0]),
+                    ),
+                  );
+                }
               }
               setState(() {
                 showSpinner = false;

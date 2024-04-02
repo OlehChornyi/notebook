@@ -1,7 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:notebook/screens/catalog_screen.dart';
+import 'package:provider/provider.dart';
+import '../catalog_detail_screen.dart';
 import 'registration_screen.dart';
+import 'package:notebook/color_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -39,57 +42,82 @@ class _LoginScreenState extends State<LoginScreen> {
               keyboardType: TextInputType.emailAddress,
               textAlign: TextAlign.center,
               onChanged: (value) {
-                email=
-                value;
+                email = value;
               },
               decoration: InputDecoration(
                 hintText: 'Enter your email',
               ),
             ),
-            SizedBox(height: 8
-            ),
+            SizedBox(height: 8),
             TextField(
               obscureText: true,
               textAlign: TextAlign.center,
               onChanged: (value) {
-                password=
-                value;
+                password = value;
               },
               decoration: InputDecoration(
                 hintText: 'Enter your password',
               ),
             ),
             SizedBox(height: 24),
-            ElevatedButton(onPressed: () async {
-              setState(() {
-                showSpinner = true;
-              });
-              try {
-                final user = await _auth.signInWithEmailAndPassword(email: email, password: password);
-                if (user != null) {
+            ElevatedButton(
+                onPressed: () async {
+                  setState(() {
+                    showSpinner = true;
+                  });
+                  try {
+                    final user = await _auth.signInWithEmailAndPassword(
+                        email: email, password: password);
+                    Provider.of<CatalogProvider>(context, listen: false)
+                        .clearCatalogNames();
+                    Provider.of<CatalogProvider>(context, listen: false)
+                        .loadCatalogNames();
+                    Provider.of<CatalogProvider>(context, listen: false)
+                        .saveCatalogNames();
+                    final catalogNames =
+                        Provider.of<CatalogProvider>(context, listen: false)
+                            .catalogNames;
+                    if (user != null) {
+                      if (catalogNames.isNotEmpty) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CatalogScreen(),
+                          ),
+                        );
+                      } else {
+                        Provider.of<CatalogProvider>(context, listen: false)
+                            .addCatalog('Notes');
+                        Provider.of<CatalogProvider>(context, listen: false)
+                            .saveCatalogNames();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                CatalogDetailScreen(catalogNames[0]),
+                          ),
+                        );
+                      }
+                    }
+                    setState(() {
+                      showSpinner = false;
+                    });
+                  } catch (e) {
+                    print(e);
+                  }
+                },
+                child: Text('Log In')),
+            SizedBox(height: 24),
+            TextButton(
+                onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          CatalogScreen(),
+                      builder: (context) => RegistrationScreen(),
                     ),
                   );
-                }
-                setState(() {
-                  showSpinner = false;
-                });
-              } catch(e) {
-                print(e);
-              }
-            }, child: Text('Log In')),
-            SizedBox(height: 24),
-            TextButton(onPressed: () {Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    RegistrationScreen(),
-              ),
-            );}, child: Text("Don't have an account? Register!")),
+                },
+                child: Text("Don't have an account? Register!")),
           ],
         ),
       ),

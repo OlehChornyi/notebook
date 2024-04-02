@@ -13,13 +13,12 @@ class CatalogScreen extends StatefulWidget {
 }
 
 class _CatalogScreenState extends State<CatalogScreen> {
-  // List<String> catalogNames = [];
   final _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
     super.initState();
-    Provider.of<CatalogProvider>(context, listen: false).loadCatalogNames(); // Save catalog names to shared preferences
+    // Provider.of<CatalogProvider>(context, listen: false).loadCatalogNames(); // Save catalog names to shared preferences
     // _loadCatalogNames();
   }
 
@@ -115,18 +114,18 @@ class _CatalogScreenState extends State<CatalogScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              ListTile(title: Text('General notes'),
-                tileColor: Theme.of(context).colorScheme.surfaceVariant,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          NotesScreen(),
-                    ),
-                  );
-                },
-              ),
+              // ListTile(title: Text('General notes'),
+              //   tileColor: Theme.of(context).colorScheme.surfaceVariant,
+              //   onTap: () {
+              //     Navigator.push(
+              //       context,
+              //       MaterialPageRoute(
+              //         builder: (context) =>
+              //             NotesScreen(),
+              //       ),
+              //     );
+              //   },
+              // ),
               ReorderableListView.builder(
                 shrinkWrap: true,
                 itemCount: Provider.of<CatalogProvider>(context).catalogNames.length,
