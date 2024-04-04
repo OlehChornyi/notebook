@@ -6,7 +6,6 @@ import 'package:notebook/screens/registration_and_login/welcome_screen.dart';
 import '../custom_provider.dart';
 import 'archive_screen.dart';
 import 'catalog_detail_screen.dart';
-import 'notes_screen.dart';
 
 class CatalogScreen extends StatefulWidget {
   @override

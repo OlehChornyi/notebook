@@ -69,31 +69,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               });
               try {
                 final newUser = await _auth.createUserWithEmailAndPassword(email: email, password: password);
-                final catalogNames =
-                    Provider.of<CatalogProvider>(context, listen: false)
-                        .catalogNames;
+                Provider.of<CatalogProvider>(context, listen: false).clearCatalogNames();
+
                 if (newUser != null) {
-                if (catalogNames.isNotEmpty) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => CatalogScreen(),
                     ),
                   );
-                } else {
-                  Provider.of<CatalogProvider>(context, listen: false)
-                      .addCatalog('Notes');
-                  Provider.of<CatalogProvider>(context, listen: false)
-                      .saveCatalogNames();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          CatalogDetailScreen(catalogNames[0]),
-                    ),
-                  );
                 }
-              }
               setState(() {
                 showSpinner = false;
               });

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notebook/fb_helper.dart';
 import 'catalog_screen.dart';
-import 'notes_screen.dart';
 import '../custom_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:notebook/screens/create_screen.dart';

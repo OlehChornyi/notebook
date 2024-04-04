@@ -32,7 +32,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
   }
 
 //6. Helper method to navigate to the detail screen
-  void _navigateToDetailScreen(int id) {
+  void _navigateToDetailScreen(String id) {
     Navigator.push(
       context,
       MaterialPageRoute(
