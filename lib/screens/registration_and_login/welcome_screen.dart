@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'registration_screen.dart';
 import 'login_screen.dart';
-import 'package:notebook/color_provider.dart';
+import 'package:notebook/custom_provider.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});

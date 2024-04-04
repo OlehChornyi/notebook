@@ -6,7 +6,7 @@ import 'create_screen.dart';
 import 'package:notebook/screens/detail_screen.dart';
 import '../db_helper.dart';
 import 'package:provider/provider.dart';
-import '../color_provider.dart';
+import '../custom_provider.dart';
 import 'catalog_detail_screen.dart';
 import 'package:notebook/fb_helper.dart';
 

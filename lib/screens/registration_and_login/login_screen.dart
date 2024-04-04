@@ -4,7 +4,7 @@ import 'package:notebook/screens/catalog_screen.dart';
 import 'package:provider/provider.dart';
 import '../catalog_detail_screen.dart';
 import 'registration_screen.dart';
-import 'package:notebook/color_provider.dart';
+import 'package:notebook/custom_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -68,36 +68,15 @@ class _LoginScreenState extends State<LoginScreen> {
                   try {
                     final user = await _auth.signInWithEmailAndPassword(
                         email: email, password: password);
-                    Provider.of<CatalogProvider>(context, listen: false)
-                        .clearCatalogNames();
-                    Provider.of<CatalogProvider>(context, listen: false)
-                        .loadCatalogNames();
-                    Provider.of<CatalogProvider>(context, listen: false)
-                        .saveCatalogNames();
-                    final catalogNames =
-                        Provider.of<CatalogProvider>(context, listen: false)
-                            .catalogNames;
+                    Provider.of<CatalogProvider>(context, listen: false).clearCatalogNames();
+
                     if (user != null) {
-                      if (catalogNames.isNotEmpty) {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => CatalogScreen(),
                           ),
                         );
-                      } else {
-                        Provider.of<CatalogProvider>(context, listen: false)
-                            .addCatalog('Notes');
-                        Provider.of<CatalogProvider>(context, listen: false)
-                            .saveCatalogNames();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                CatalogDetailScreen(catalogNames[0]),
-                          ),
-                        );
-                      }
                     }
                     setState(() {
                       showSpinner = false;

@@ -1,8 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:notebook/fb_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:notebook/screens/registration_and_login/welcome_screen.dart';
-import '../color_provider.dart';
+import '../custom_provider.dart';
 import 'archive_screen.dart';
 import 'catalog_detail_screen.dart';
 import 'notes_screen.dart';
@@ -14,12 +15,25 @@ class CatalogScreen extends StatefulWidget {
 
 class _CatalogScreenState extends State<CatalogScreen> {
   final _auth = FirebaseAuth.instance;
+  int _notesCount = 0;
 
   @override
   void initState() {
     super.initState();
-    // Provider.of<CatalogProvider>(context, listen: false).loadCatalogNames(); // Save catalog names to shared preferences
-    // _loadCatalogNames();
+    _loadCatalogs();
+    print(Provider.of<CatalogProvider>(context, listen: false).catalogNames);
+  }
+
+  void _loadCatalogs() {
+    Provider.of<CatalogProvider>(context, listen: false).loadCatalogNames();
+    setState(() {});
+  }
+
+  Future<void> _countNotes(catalogName) async {
+    int count = await FirebaseHelper().countNotesByCatalog(catalogName);
+    setState(() {
+      _notesCount = count;
+    });
   }
 
   //9. A route to ArchiveScreen
@@ -31,11 +45,13 @@ class _CatalogScreenState extends State<CatalogScreen> {
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     ColorProvider colorProvider = Provider.of<ColorProvider>(context);
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text('Catalog'),
@@ -67,7 +83,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => CatalogScreen()),
-                  );// Close the drawer
+                  ); // Close the drawer
                 },
                 items: [
                   DropdownMenuItem(
@@ -98,8 +114,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        WelcomeScreen(),
+                    builder: (context) => WelcomeScreen(),
                   ),
                 );
               },
@@ -114,28 +129,21 @@ class _CatalogScreenState extends State<CatalogScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              // ListTile(title: Text('General notes'),
-              //   tileColor: Theme.of(context).colorScheme.surfaceVariant,
-              //   onTap: () {
-              //     Navigator.push(
-              //       context,
-              //       MaterialPageRoute(
-              //         builder: (context) =>
-              //             NotesScreen(),
-              //       ),
-              //     );
-              //   },
-              // ),
               ReorderableListView.builder(
                 shrinkWrap: true,
-                itemCount: Provider.of<CatalogProvider>(context).catalogNames.length,
+                itemCount:
+                    Provider.of<CatalogProvider>(context).catalogNames.length,
                 itemBuilder: (context, index) {
-                  final catalogNames = Provider.of<CatalogProvider>(context).catalogNames;
+                  final catalogNames =
+                      Provider.of<CatalogProvider>(context).catalogNames;
                   return Dismissible(
                     key: Key(catalogNames[index]),
                     direction: DismissDirection.endToStart,
                     onDismissed: (direction) {
-                      Provider.of<CatalogProvider>(context, listen: false).removeCatalog(catalogNames[index]);
+                      FirebaseHelper()
+                          .deleteNotesWithCatalogName(catalogNames[index]);
+                      Provider.of<CatalogProvider>(context, listen: false)
+                          .removeCatalog(catalogNames[index]);
                     },
                     background: Container(
                       alignment: AlignmentDirectional.centerEnd,
@@ -144,7 +152,20 @@ class _CatalogScreenState extends State<CatalogScreen> {
                     ),
                     child: ListTile(
                       tileColor: Theme.of(context).colorScheme.surfaceVariant,
-                      title: Text(catalogNames[index]),
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(catalogNames[index]),
+                          FutureBuilder<int>(
+                            future: FirebaseHelper()
+                                .countNotesByCatalog(catalogNames[index]),
+                            builder: (context, snapshot) {
+                              int? notesCount = snapshot.data;
+                              return Text('$notesCount notes');
+                            },
+                          )
+                        ],
+                      ),
                       onTap: () {
                         // Navigate to the catalog detail screen with the selected catalog name
                         Navigator.push(
@@ -163,8 +184,10 @@ class _CatalogScreenState extends State<CatalogScreen> {
                     if (newIndex > oldIndex) {
                       newIndex -= 1;
                     }
-                    final catalogProvider = Provider.of<CatalogProvider>(context, listen: false);
-                    final String item = catalogProvider.catalogNames.removeAt(oldIndex);
+                    final catalogProvider =
+                        Provider.of<CatalogProvider>(context, listen: false);
+                    final String item =
+                        catalogProvider.catalogNames.removeAt(oldIndex);
                     catalogProvider.catalogNames.insert(newIndex, item);
                     catalogProvider.saveCatalogNames();
                   });
@@ -182,8 +205,10 @@ class _CatalogScreenState extends State<CatalogScreen> {
                   // Add the new catalog name to the list if not null
                   if (newCatalogName != null && newCatalogName.isNotEmpty) {
                     setState(() {
-                      Provider.of<CatalogProvider>(context, listen: false).addCatalog(newCatalogName);
-                      Provider.of<CatalogProvider>(context, listen: false).saveCatalogNames(); // Save catalog names to shared preferences
+                      Provider.of<CatalogProvider>(context, listen: false)
+                          .addCatalog(newCatalogName);
+                      Provider.of<CatalogProvider>(context, listen: false)
+                          .saveCatalogNames(); // Save catalog names to shared preferences
                       // Save catalog names to shared preferences
                     });
                   }

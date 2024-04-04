@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:notebook/screens/catalog_screen.dart';
 import 'package:provider/provider.dart';
-import '../../color_provider.dart';
+import '../../custom_provider.dart';
 import '../catalog_detail_screen.dart';
 import 'login_screen.dart';
 

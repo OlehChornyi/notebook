@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'catalog_detail_screen.dart';
 import 'package:notebook/fb_helper.dart';
 import 'notes_screen.dart';
-import '../color_provider.dart';
+import '../custom_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../db_helper.dart';

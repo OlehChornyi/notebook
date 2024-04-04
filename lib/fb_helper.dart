@@ -1,3 +1,4 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -97,6 +98,24 @@ class FirebaseHelper {
     }
   }
 
+  Future<int> countNotesByCatalog(String catalogName) async {
+    CollectionReference notes = FirebaseFirestore.instance.collection('notes');
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+
+    try {
+      QuerySnapshot snapshot = await notes
+          .where('catalog_name', isEqualTo: catalogName)
+          .where('userId', isEqualTo: uid)
+          .get();
+
+      // Return the number of documents in the snapshot
+      return snapshot.size;
+    } catch (error) {
+      print("Failed to count notes: $error");
+      return 0;
+    }
+  }
+
 //3. Update specific value
   Future<void> updateValue(String noteId, String newValue) {
     CollectionReference notes = FirebaseFirestore.instance.collection('notes');
@@ -131,5 +150,26 @@ class FirebaseHelper {
         .delete()
         .then((value) => print("Value deleted successfully!"))
         .catchError((error) => print("Failed to delete value: $error"));
+  }
+
+  //4.1. Deleting value by catalog
+  Future<void> deleteNotesWithCatalogName(String catalogName) async {
+    CollectionReference notes = FirebaseFirestore.instance.collection('notes');
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+
+    try {
+      QuerySnapshot querySnapshot = await notes
+          .where('catalog_name', isEqualTo: catalogName)
+          .where('userId', isEqualTo: uid)
+          .get();
+
+      for (DocumentSnapshot doc in querySnapshot.docs) {
+        await doc.reference.delete();
+      }
+      // print('deleted');
+    } catch (error) {
+      // Handle errors
+      print("Error deleting notes: $error");
+    }
   }
 }

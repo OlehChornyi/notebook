@@ -37,6 +37,8 @@ class CatalogProvider extends ChangeNotifier {
   List<String> _catalogNames = []; // Default catalog names
   static const String _catalogNamesKey = 'catalogNames';
   String _selectedCatalog = ''; // Selected catalog name
+  CollectionReference _catalogs =
+  FirebaseFirestore.instance.collection('catalogs');
 
   List<String> get catalogNames => _catalogNames;
   String get selectedCatalog => _selectedCatalog;
@@ -45,7 +47,7 @@ class CatalogProvider extends ChangeNotifier {
     loadCatalogNames();
   }
 
-  // Method to set the selected catalog
+  // Method to set the selected catalog (move note between catalogs)
   void setSelectedCatalog(String catalogName) {
     if (_catalogNames.contains(catalogName)) {
       _selectedCatalog = catalogName;
@@ -53,59 +55,71 @@ class CatalogProvider extends ChangeNotifier {
     }
   }
 
-  // Load catalog names from shared preferences
-  // Future<void> loadCatalogNames() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   List<String>? storedCatalogNames = prefs.getStringList(_catalogNamesKey);
-  //   if (storedCatalogNames != null) {
-  //     _catalogNames = storedCatalogNames;
-  //   }
-  //   notifyListeners();
-  // }
   Future<void> loadCatalogNames() async {
-    CollectionReference notes = FirebaseFirestore.instance.collection('notes');
-    String? uid = FirebaseAuth
-        .instance.currentUser?.uid;
+    List<String> catalogNames = [];
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+
     try {
-      QuerySnapshot snapshot = await notes.where('userId', isEqualTo: uid).get();
+      QuerySnapshot querySnapshot = await _catalogs
+          .where('userId', isEqualTo: uid)
+          .limit(1)
+          .get();
 
-      // Use a Set to store unique catalog names
-      Set<String> catalogNames = Set();
-
-      snapshot.docs.forEach((doc) {
-        String catalogName = doc['catalog_name'];
-        if (catalogName != 'Archive') {
-          catalogNames.add(catalogName);
+      if (querySnapshot.docs.isNotEmpty) {
+        DocumentSnapshot docSnapshot = querySnapshot.docs.first;
+        List<dynamic>? names = docSnapshot['names'];
+        if (names != null) {
+          catalogNames.addAll(names.map((name) => name.toString()));
         }
-      });
-
-      // Convert the Set to a List
-      _catalogNames = catalogNames.toList();
-      notifyListeners();
+      } else {
+        // Document does not exist for the given UID
+        print('No catalog names found for the user with UID: $uid');
+      }
     } catch (error) {
-      print("Failed to load catalog names: $error");
+      print('Error loading catalog names: $error');
+    }
+    print(catalogNames);
+    _catalogNames = catalogNames.toList();
+    notifyListeners();
+    // return catalogNames;
+  }
+
+  Future<void> saveCatalogNames() async {
+    String uid = FirebaseAuth.instance.currentUser!.uid;
+
+    try {
+      QuerySnapshot querySnapshot = await _catalogs
+          .where('userId', isEqualTo: uid)
+          .limit(1)
+          .get();
+
+      List<dynamic> catalogNamesArray = _catalogNames.toList();
+
+      if (querySnapshot.docs.isEmpty) {
+        // If no entry with the given UID exists, create a new one
+        await _catalogs.add({'userId': uid, 'names': catalogNamesArray});
+      } else {
+        // If an entry with the given UID exists, update its names
+        String docId = querySnapshot.docs.first.id;
+        await _catalogs.doc(docId).update({'names': catalogNamesArray});
+      }
+    } catch (error) {
+      print('Error saving catalog names: $error');
     }
   }
-  // Save catalog names to shared preferences
-  Future<void> saveCatalogNames() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setStringList(_catalogNamesKey, _catalogNames);
-  }
 
-  // Add a new catalog name
   void addCatalog(String name) {
     _catalogNames.add(name);
     saveCatalogNames();
     notifyListeners();
   }
 
-  // Remove a catalog name
   void removeCatalog(String name) {
     _catalogNames.remove(name);
     saveCatalogNames();
     notifyListeners();
   }
-  // Method to delete all values from catalogNames
+
   void clearCatalogNames() {
     _catalogNames.clear();
     notifyListeners();
