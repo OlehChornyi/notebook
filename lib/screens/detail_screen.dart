@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../main.dart';
 import 'catalog_detail_screen.dart';
 import '../db_helper.dart';
 import 'edit_screen.dart';
@@ -33,7 +34,7 @@ class _DetailScreenState extends State<DetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Note's detail"),
+        title: Text(AppLocalizations.of(context)!.translate('detail')),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),

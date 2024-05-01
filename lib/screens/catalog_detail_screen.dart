@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:notebook/fb_helper.dart';
+import '../main.dart';
 import 'catalog_screen.dart';
 import '../custom_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:notebook/screens/create_screen.dart';
-import '../main.dart';
 import 'detail_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'archive_screen.dart';
 import '../db_helper.dart';
 
 class CatalogDetailScreen extends StatefulWidget {
@@ -21,11 +19,12 @@ class CatalogDetailScreen extends StatefulWidget {
 
 class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
   List<Map<String, dynamic>> _values = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadValues();
+    _loadValues().then((_) => _isLoading = false);
   }
 
   Future<void> _loadValues() async {
@@ -51,38 +50,7 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
 
   //8. Alert dialog with delete confirmation
   void _confirmDeleteDialog(String id) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Confirm Delete'),
-          content: Text('Are you sure you want to delete this note?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                // _deleteNoteAndArchive(id);
-                FirebaseHelper().updateCatalogName(id, 'Archive');
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        CatalogDetailScreen(widget.catalogName),
-                  ),
-                ); // Close the dialog
-                setState(() {});
-              },
-              child: Text('Delete'),
-            ),
-          ],
-        );
-      },
-    );
+
   }
 
   //5. A method to delete from notes screen and archive note
@@ -104,12 +72,12 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
                 : catalogProvider.catalogNames[0];
 
             return AlertDialog(
-              title: Text('Confirm Move'),
+              title: Text(AppLocalizations.of(context)!.translate('confirmMove')),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('To which catalog move this note?'),
+                  Text(AppLocalizations.of(context)!.translate('whichCatalog')),
                   SizedBox(height: 8),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,9 +112,9 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
                   onPressed: () {
                     Navigator.of(context).pop(); // Close the dialog
                   },
-                  child: Text('Cancel'),
+                  child: Text(AppLocalizations.of(context)!.translate('cancel')),
                 ),
-                TextButton(
+                ElevatedButton(
                   onPressed: () {
                     // Move to catalog here
                     String selectedCatalog = catalogProvider.selectedCatalog;
@@ -160,7 +128,7 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
                       ),
                     );
                   },
-                  child: Text('Move'),
+                  child: Text(AppLocalizations.of(context)!.translate('move')),
                 ),
               ],
             );
@@ -186,72 +154,99 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
           },
         ),
       ),
-      body: ListView.builder(
-        itemCount: _values.length,
-        itemBuilder: (context, index) {
-          DateTime updatedAt = DateTime.parse(_values[index]['updated_at']);
-          return GestureDetector(
-            onTap: () {
-              _navigateToDetailScreen(_values[index]['id']);
-            },
-            //13. Card with IconButton (delete)
-            // key: Key('$index'), // Add a unique key to each item for reordering
-            child: Card(
-              margin: const EdgeInsets.all(16.0),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            // note.value,
-                            '${_values[index]['value']}',
-                            style: const TextStyle(fontSize: 20.0),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
+      body: _isLoading ? Center(child: CircularProgressIndicator()) : RefreshIndicator(
+        onRefresh: () async {
+          List<Map<String, dynamic>> values =
+              await FirebaseHelper().fetchValuesByCatalog(widget.catalogName);
+          setState(() {
+            _values = values;
+          });
+        },
+        child: ListView.builder(
+          itemCount: _values.length,
+          itemBuilder: (context, index) {
+            DateTime updatedAt = DateTime.parse(_values[index]['updated_at']);
+            return GestureDetector(
+              onTap: () {
+                _navigateToDetailScreen(_values[index]['id']);
+              },
+              //13. Card with IconButton (delete)
+              // key: Key('$index'), // Add a unique key to each item for reordering
+              child: Card(
+                margin: const EdgeInsets.all(16.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              // note.value,
+                              '${_values[index]['value']}',
+                              style: const TextStyle(fontSize: 20.0),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
                           ),
-                        ),
 
-                        // const SizedBox(width: 8.0),
-                        Row(
-                          children: [
-                            IconButton(
-                              onPressed: () {
-                                _confirmMoveDialog(_values[index]['id']);
-                              },
-                              icon: const Icon(Icons.drive_file_move),
-                            ),
-                            IconButton(
-                              onPressed: () {
-                                _confirmDeleteDialog(_values[index]['id']);
-                              },
-                              icon: const Icon(Icons.delete),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    // SizedBox(height: 8.0),
-                    Text('${formattedDateTime(updatedAt)}'),
-                  ],
+                          // const SizedBox(width: 8.0),
+                          Row(
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  _confirmMoveDialog(_values[index]['id']);
+                                },
+                                icon: const Icon(Icons.drive_file_move),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  // _confirmDeleteDialog(_values[index]['id']);
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text(AppLocalizations.of(context)!.translate('confirmDelete')),
+                                        content: Text(AppLocalizations.of(context)!.translate('youSure')),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop(); // Close the dialog
+                                            },
+                                            child: Text(AppLocalizations.of(context)!.translate('cancel')),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              FirebaseHelper().updateCatalogName(_values[index]['id'], 'Archive');
+                                              setState(() {
+                                                _values.removeAt(index);
+                                              });
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Text(AppLocalizations.of(context)!.translate('delete')),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                                icon: const Icon(Icons.delete),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      // SizedBox(height: 8.0),
+                      Text('${formattedDateTime(updatedAt)}'),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
-        // onReorder: (int oldIndex, int newIndex) {
-        //   setState(() {
-        //     if (newIndex > oldIndex) {
-        //       newIndex -= 1;
-        //     }
-        //     final Map<String, dynamic> item = _values.removeAt(oldIndex);
-        //     _values.insert(newIndex, item);
-        //   });
-        // },
+            );
+          },
+        ),
       ),
       //14. Floating action button with route to the CreateNoteScreen
       floatingActionButton: FloatingActionButton(

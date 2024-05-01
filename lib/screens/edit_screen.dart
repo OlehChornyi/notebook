@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../db_helper.dart';
+import '../main.dart';
 import 'detail_screen.dart';
 import 'package:notebook/fb_helper.dart';
 
@@ -41,7 +42,7 @@ class _EditScreenState extends State<EditScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit my note'),
+        title: Text(AppLocalizations.of(context)!.translate('edit')),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),

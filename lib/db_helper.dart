@@ -67,51 +67,7 @@ class DatabaseHelper {
       await db.delete('my_table', where: 'id = ?', whereArgs: [id]);
     }
   }
-  // Future<void> deleteNoteAndArchive(int id) async {
-  //   final Database db = await database;
-  //
-  //   // Get the note to be deleted
-  //   final noteToDelete = await db.query('my_table', where: 'id = ?', whereArgs: [id]);
-  //
-  //   if (noteToDelete.isNotEmpty) {
-  //     // Check if the ID already exists in the archive_table
-  //     final existingIds = await db.query('archive_table',
-  //         columns: ['id'],
-  //         where: 'id = ?',
-  //         whereArgs: [id]);
-  //
-  //     int newId;
-  //
-  //     // If the ID already exists in the archive_table, choose a new ID
-  //     if (existingIds.isNotEmpty) {
-  //       newId = await _getNewArchiveId(db);
-  //     } else {
-  //       // Use the existing ID
-  //       newId = id;
-  //     }
-  //
-  //     // Insert the note into the archive table with the new ID
-  //     await db.insert('archive_table', {
-  //       'id': newId,
-  //       'value': noteToDelete.first['value'], // Assuming 'value' is a column in your table
-  //     });
-  //
-  //     // Delete the note from the main table
-  //     await db.delete('my_table', where: 'id = ?', whereArgs: [id]);
-  //   }
-  // }
-  //
-  // Future<int> _getNewArchiveId(Database db) async {
-  //   // This function should return a new ID that doesn't exist in the archive_table
-  //   int newId = 1; // Starting new ID, you might want to implement a more robust logic
-  //   final existingIds = await db.query('archive_table', columns: ['id']);
-  //
-  //   while (existingIds.any((row) => row['id'] == newId)) {
-  //     newId++; // Increment new ID until a unique one is found
-  //   }
-  //
-  //   return newId;
-  // }
+
   //4.Receive values from my_table
   Future<List<Map<String, dynamic>>> getValues() async {
     final Database db = await database;

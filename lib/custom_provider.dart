@@ -33,6 +33,42 @@ class ColorProvider extends ChangeNotifier {
   }
 }
 
+class LanguageProvider extends ChangeNotifier {
+  Locale _appLocale = Locale('en');
+  Locale get appLocal => _appLocale ?? Locale("en");
+
+  LanguageProvider() {
+    fetchLocale();
+  }
+
+  fetchLocale() async {
+    var prefs = await SharedPreferences.getInstance();
+    if (prefs.getString('language_code') == null) {
+      _appLocale = Locale('en');
+      return Null;
+    }
+    _appLocale = Locale(prefs.getString('language_code')!);
+    return Null;
+  }
+
+  void changeLanguage(Locale type) async {
+    var prefs = await SharedPreferences.getInstance();
+    if (_appLocale == type) {
+      return;
+    }
+    if (type == Locale("uk")) {
+      _appLocale = Locale("uk");
+      await prefs.setString('language_code', 'uk');
+      await prefs.setString('countryCode', 'UA');
+    } else {
+      _appLocale = Locale("en");
+      await prefs.setString('language_code', 'en');
+      await prefs.setString('countryCode', 'US');
+    }
+    notifyListeners();
+  }
+}
+
 class CatalogProvider extends ChangeNotifier {
   List<String> _catalogNames = []; // Default catalog names
   static const String _catalogNamesKey = 'catalogNames';
@@ -72,7 +108,6 @@ class CatalogProvider extends ChangeNotifier {
           catalogNames.addAll(names.map((name) => name.toString()));
         }
       } else {
-        // Document does not exist for the given UID
         print('No catalog names found for the user with UID: $uid');
       }
     } catch (error) {
@@ -81,7 +116,6 @@ class CatalogProvider extends ChangeNotifier {
     print(catalogNames);
     _catalogNames = catalogNames.toList();
     notifyListeners();
-    // return catalogNames;
   }
 
   Future<void> saveCatalogNames() async {

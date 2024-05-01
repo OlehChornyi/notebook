@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../main.dart';
 import 'registration_screen.dart';
 import 'login_screen.dart';
 import 'package:notebook/custom_provider.dart';
@@ -51,7 +52,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                   );
                 },
-                child: Text('Log In')),
+                child: Text(AppLocalizations.of(context)!.translate('logIn'))),
             ElevatedButton(
                 onPressed: () {
                   Navigator.push(
@@ -61,7 +62,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                   );
                 },
-                child: Text('Register')),
+                child: Text(AppLocalizations.of(context)!.translate('register'))),
           ],
         ),
       ),

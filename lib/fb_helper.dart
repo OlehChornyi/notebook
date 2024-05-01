@@ -1,13 +1,12 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class FirebaseHelper {
-  //1. Insert new note into Firebase - OK
+  //1. Insert new note into Firebase
   Future<void> insertValue(String value, String catalogName) async {
     CollectionReference notes = FirebaseFirestore.instance.collection('notes');
     String uid = FirebaseAuth
-        .instance.currentUser!.uid; // Get the UID of the current user
+        .instance.currentUser!.uid;
 
     return notes
         .add({
@@ -56,7 +55,6 @@ class FirebaseHelper {
       if (snapshot.exists) {
         data = snapshot.data()! as Map<String, dynamic>;
       } else {
-        // Document does not exist
         throw Exception('Document not found');
       }
     } catch (error) {
@@ -71,7 +69,7 @@ class FirebaseHelper {
       String catalogName) async {
     CollectionReference notes = FirebaseFirestore.instance.collection('notes');
     String uid = FirebaseAuth
-        .instance.currentUser!.uid; // Get the UID of the current user
+        .instance.currentUser!.uid;
 
     try {
       QuerySnapshot snapshot = await notes
@@ -98,6 +96,7 @@ class FirebaseHelper {
     }
   }
 
+  //2.3. Get number of notes for catalog
   Future<int> countNotesByCatalog(String catalogName) async {
     CollectionReference notes = FirebaseFirestore.instance.collection('notes');
     String uid = FirebaseAuth.instance.currentUser!.uid;
@@ -166,9 +165,7 @@ class FirebaseHelper {
       for (DocumentSnapshot doc in querySnapshot.docs) {
         await doc.reference.delete();
       }
-      // print('deleted');
     } catch (error) {
-      // Handle errors
       print("Error deleting notes: $error");
     }
   }

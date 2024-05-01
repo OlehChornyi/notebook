@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notebook/screens/archive_detail_screen.dart';
+import '../main.dart';
 import 'catalog_screen.dart';
 import '../db_helper.dart';
 import 'package:notebook/fb_helper.dart';
@@ -51,16 +52,16 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Delete From Archive'),
-          content: Text('Are you sure you want to delete this note forever?'),
+          title: Text(AppLocalizations.of(context)!.translate('deleteArchive')),
+          content: Text(AppLocalizations.of(context)!.translate('deleteForever')),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text('Cancel'),
+              child: Text(AppLocalizations.of(context)!.translate('cancel')),
             ),
-            TextButton(
+            ElevatedButton(
               onPressed: () {
                 _deleteNote(id);
                 Navigator.push(
@@ -68,7 +69,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
                   MaterialPageRoute(builder: (context) => ArchiveScreen()),
                 ); // Close the dialog
               },
-              child: Text('Delete'),
+              child: Text(AppLocalizations.of(context)!.translate('delete')),
             ),
           ],
         );
@@ -95,7 +96,7 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
           ),
         ),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Archived notes'),
+        title: Text(AppLocalizations.of(context)!.translate('archivedNotes')),
       ),
       //10. ListView builder with gesture detector
       body: ListView.builder(

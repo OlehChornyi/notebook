@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../db_helper.dart';
 import '../fb_helper.dart';
+import '../main.dart';
 import 'archive_screen.dart';
 
 //1.Stateful widget with parameter and constructor
@@ -11,21 +11,19 @@ class ArchiveDetailScreen extends StatefulWidget {
   _ArchiveDetailScreenState createState() => _ArchiveDetailScreenState();
 }
 
-//2.Extension with future parameter
+//2.Extension
 class _ArchiveDetailScreenState extends State<ArchiveDetailScreen> {
-  // late Future<String?> _detailFuture;
 //3.Screen state initialization with specific value from the table
   @override
   void initState() {
     super.initState();
-    // _detailFuture = DatabaseHelper().getArchiveDetailById(widget.recordId);
   }
 //4.Build with Scaffold, AppBar
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Archive detail"),
+        title: Text(AppLocalizations.of(context)!.translate('archiveDetail')),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
