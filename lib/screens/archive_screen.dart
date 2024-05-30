@@ -2,27 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:notebook/screens/archive_detail_screen.dart';
 import '../main.dart';
 import 'catalog_screen.dart';
-import '../db_helper.dart';
 import 'package:notebook/fb_helper.dart';
 
-//1. Stateful widget
 class ArchiveScreen extends StatefulWidget {
   const ArchiveScreen({super.key});
   @override
   State<ArchiveScreen> createState() => _ArchiveScreenState();
 }
 
-//2. Extension with list of maps
 class _ArchiveScreenState extends State<ArchiveScreen> {
   List<Map<String, dynamic>> _values = [];
-//3. Screen state initialization with the usage of table values loading
+
   @override
   void initState() {
     super.initState();
     _loadValues();
   }
 
-//4. A method to load all values from the db table
   Future<void> _loadValues() async {
     List<Map<String, dynamic>> values =
         await FirebaseHelper().fetchValuesByCatalog('Archive');
@@ -32,7 +28,6 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
     });
   }
 
-//6. Helper method to navigate to the detail screen
   void _navigateToDetailScreen(String id) {
     Navigator.push(
       context,
@@ -41,12 +36,10 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
     );
   }
 
-  //7. Creation time formating
   String formattedDateTime(DateTime dateTime) {
     return '${dateTime.day}-${dateTime.month}-${dateTime.year} ${dateTime.hour}:${dateTime.minute}';
   }
 
-//8. Alert dialog with permanent delete confirmation
   void _confirmDeleteDialog(String id) {
     showDialog(
       context: context,
@@ -78,12 +71,10 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
   }
 
   void _deleteNote(String id) {
-    // DatabaseHelper().deleteFromArchive(id);
     FirebaseHelper().deleteValue(id);
     _loadValues();
   }
 
-//9. Build with Scaffold and AppBar
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,7 +89,6 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(AppLocalizations.of(context)!.translate('archivedNotes')),
       ),
-      //10. ListView builder with gesture detector
       body: ListView.builder(
         itemCount: _values.length,
         itemBuilder: (context, index) {
@@ -107,7 +97,6 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
             onTap: () {
               _navigateToDetailScreen(_values[index]['id']);
             },
-            //11. Card with IconButton
             child: Card(
               margin: const EdgeInsets.all(16.0),
               child: Padding(
@@ -120,7 +109,6 @@ class _ArchiveScreenState extends State<ArchiveScreen> {
                       children: [
                         Flexible(
                           child: Text(
-                            // note.value,
                             '${_values[index]['value']}',
                             style: const TextStyle(fontSize: 20.0),
                             overflow: TextOverflow.ellipsis,

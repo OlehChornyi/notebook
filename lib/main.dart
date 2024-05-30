@@ -35,7 +35,7 @@ class NoteApp extends StatelessWidget {
 
   const NoteApp(this.prefs);
 
-//3. Build with theme and home
+//3. Build with theme, locales and home
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

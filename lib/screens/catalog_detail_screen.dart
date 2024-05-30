@@ -6,7 +6,6 @@ import '../custom_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:notebook/screens/create_screen.dart';
 import 'detail_screen.dart';
-import '../db_helper.dart';
 
 class CatalogDetailScreen extends StatefulWidget {
   final String catalogName;
@@ -35,12 +34,10 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
     });
   }
 
-  //7. Time format
   String formattedDateTime(DateTime dateTime) {
     return '${dateTime.day}-${dateTime.month}-${dateTime.year} ${dateTime.hour+3}:${dateTime.minute}';
   }
 
-  //6. Helper method to navigate to the detail screen
   void _navigateToDetailScreen(String id) {
     Navigator.push(
       context,
@@ -48,23 +45,10 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
     );
   }
 
-  //8. Alert dialog with delete confirmation
-  void _confirmDeleteDialog(String id) {
-
-  }
-
-  //5. A method to delete from notes screen and archive note
-  void _deleteNoteAndArchive(int id) {
-    DatabaseHelper().deleteNoteAndArchive(id);
-    // Refresh the UI or update the state to reflect the changes
-    setState(() {});
-  }
-
   void _confirmMoveDialog(String id) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        // final catalogNames = Provider.of<CatalogProvider>(context).catalogNames;
         return Consumer<CatalogProvider>(
           builder: (context, catalogProvider, _) {
             String selectedCatalog = catalogProvider.catalogNames.isEmpty
@@ -118,7 +102,6 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
                   onPressed: () {
                     // Move to catalog here
                     String selectedCatalog = catalogProvider.selectedCatalog;
-                    // DatabaseHelper().updateCatalogName(id, selectedCatalog);
                     FirebaseHelper().updateCatalogName(id, selectedCatalog);
                     Navigator.push(
                       context,
@@ -170,8 +153,6 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
               onTap: () {
                 _navigateToDetailScreen(_values[index]['id']);
               },
-              //13. Card with IconButton (delete)
-              // key: Key('$index'), // Add a unique key to each item for reordering
               child: Card(
                 margin: const EdgeInsets.all(16.0),
                 child: Padding(
@@ -184,15 +165,12 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
                         children: [
                           Flexible(
                             child: Text(
-                              // note.value,
                               '${_values[index]['value']}',
                               style: const TextStyle(fontSize: 20.0),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                             ),
                           ),
-
-                          // const SizedBox(width: 8.0),
                           Row(
                             children: [
                               IconButton(
@@ -203,7 +181,6 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
                               ),
                               IconButton(
                                 onPressed: () {
-                                  // _confirmDeleteDialog(_values[index]['id']);
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
@@ -238,7 +215,6 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
                           ),
                         ],
                       ),
-                      // SizedBox(height: 8.0),
                       Text('${formattedDateTime(updatedAt)}'),
                     ],
                   ),
@@ -248,7 +224,6 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
           },
         ),
       ),
-      //14. Floating action button with route to the CreateNoteScreen
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(

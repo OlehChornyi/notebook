@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import '../main.dart';
 import 'catalog_detail_screen.dart';
-import '../db_helper.dart';
 import 'edit_screen.dart';
 import 'package:notebook/fb_helper.dart';
 
-//1.Stateful widget with parameter and constructor
 class DetailScreen extends StatefulWidget {
   final String recordId;
   final String? catalogName;
@@ -13,23 +11,20 @@ class DetailScreen extends StatefulWidget {
   @override
   _DetailScreenState createState() => _DetailScreenState();
 }
-//2.Extension with future parameter
+
 class _DetailScreenState extends State<DetailScreen> {
-  // late Future<String?> _detailFuture;
-//3.Screen state initialization with specific value from the table
   @override
   void initState() {
     super.initState();
-    // _detailFuture = DatabaseHelper().getDetailById(widget.recordId);
   }
-  //4.A method that returns a route to the EditScreen
+
   void _editRecord(BuildContext context, String recordId) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => EditScreen(recordId, widget.catalogName!)),
     );
   }
-//5.Build with Scaffold, AppBar and edit button
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,7 +49,6 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
         ],
       ),
-      //6.Body with builder that returns a specific value from the table
       body: SingleChildScrollView(
         child: FutureBuilder<Map<String, dynamic>>(
           future: FirebaseHelper().fetchValueById(widget.recordId) as Future<Map<String, dynamic>>,

@@ -26,7 +26,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
     super.initState();
     _loadCatalogs().then((_) => _isLoading = false);
     _loadArchiveValues();
-    print(Provider.of<CatalogProvider>(context, listen: false).catalogNames);
   }
 
   Future<void> _loadCatalogs() async{
@@ -50,7 +49,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
     });
   }
 
-  //9. A route to ArchiveScreen
   void _navigateToArchive(BuildContext context) {
     Navigator.push(
       context,
@@ -63,6 +61,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
   @override
   Widget build(BuildContext context) {
     ColorProvider colorProvider = Provider.of<ColorProvider>(context);
+    bool isEng = Provider.of<LanguageProvider>(context).appLocal == Locale("en");
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -114,23 +113,19 @@ class _CatalogScreenState extends State<CatalogScreen> {
                   setState(() {
                     colorProvider.selectedColor = color!;
                   });
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(builder: (context) => CatalogScreen()),
-                  // ); // Close the drawer
                 },
                 items: [
                   DropdownMenuItem(
                     value: Color(0xff4caf50),
-                    child: Text('Green'),
+                    child: isEng ? Text('Green') : Text('Зелений'),
                   ),
                   DropdownMenuItem(
                     value: Color(0xfff44336),
-                    child: Text('Red'),
+                    child: isEng ? Text('Red') : Text('Червоний'),
                   ),
                   DropdownMenuItem(
                     value: Color(0xff2196f3),
-                    child: Text('Blue'),
+                    child: isEng ? Text('Blue') : Text('Синій'),
                   ),
                 ],
               ),
@@ -138,17 +133,17 @@ class _CatalogScreenState extends State<CatalogScreen> {
             ListTile(
               title: Text(AppLocalizations.of(context)!.translate('language')),
               trailing: DropdownButton<String>(
-                value: Provider.of<LanguageProvider>(context).appLocal == Locale("en") ? 'English' : 'Ukrainian',
+                value: isEng ? 'English' : 'Українська',
                 onChanged: (String? newValue) {
                   setState(() {
                     if (newValue == 'English') {
                       Provider.of<LanguageProvider>(context, listen: false).changeLanguage(Locale("en"));
-                    } else if (newValue == 'Ukrainian') {
+                    } else if (newValue == 'Українська') {
                       Provider.of<LanguageProvider>(context, listen: false).changeLanguage(Locale("uk"));
                     }
                   });
                 },
-                items: <String>['English', 'Ukrainian'].map<DropdownMenuItem<String>>((String value) {
+                items: <String>['English', 'Українська'].map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
                     child: Text(value),
@@ -238,7 +233,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
                             ],
                           ),
                           onTap: () {
-                            // Navigate to the catalog detail screen with the selected catalog name
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -272,8 +266,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
                         context: context,
                         builder: (context) => AddCatalogDialog(),
                       );
-
-                      // Add the new catalog name to the list if not null
                       if (newCatalogName != null && newCatalogName.isNotEmpty) {
                         setState(() {
                           Provider.of<CatalogProvider>(context, listen: false)
@@ -323,7 +315,6 @@ class _AddCatalogDialogState extends State<AddCatalogDialog> {
         ),
         ElevatedButton(
           onPressed: () {
-            // Pass the entered catalog name back to the CatalogScreen
             Navigator.of(context).pop(_catalogNameController.text.trim());
           },
           child: Text(AppLocalizations.of(context)!.translate('add')),

@@ -3,7 +3,6 @@ import '../fb_helper.dart';
 import '../main.dart';
 import 'archive_screen.dart';
 
-//1.Stateful widget with parameter and constructor
 class ArchiveDetailScreen extends StatefulWidget {
   final String recordId;
   const ArchiveDetailScreen({super.key, required this.recordId});
@@ -11,14 +10,12 @@ class ArchiveDetailScreen extends StatefulWidget {
   _ArchiveDetailScreenState createState() => _ArchiveDetailScreenState();
 }
 
-//2.Extension
 class _ArchiveDetailScreenState extends State<ArchiveDetailScreen> {
-//3.Screen state initialization with specific value from the table
   @override
   void initState() {
     super.initState();
   }
-//4.Build with Scaffold, AppBar
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,7 +32,6 @@ class _ArchiveDetailScreenState extends State<ArchiveDetailScreen> {
           },
         ),
       ),
-      //5.Body with builder that returns a specific value from the table
       body: SingleChildScrollView(
         child: FutureBuilder<Map<String, dynamic>>(
           future: FirebaseHelper().fetchValueById(widget.recordId) as Future<Map<String, dynamic>>,
