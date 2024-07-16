@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:notebook/firebase_options.dart';
 import 'screens/catalog_screen.dart';
 import 'screens/registration_and_login/welcome_screen.dart';
@@ -14,11 +15,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 //1.Main method of the app with SharedP., MultiProvider and Firebase
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  LanguageProvider appLanguage = LanguageProvider();
-  await appLanguage.fetchLocale();
+  // LanguageProvider appLanguage = LanguageProvider();
+  // await appLanguage.fetchLocale();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   runApp(MultiProvider(
     providers: [
@@ -38,8 +40,11 @@ class NoteApp extends StatelessWidget {
 //3. Build with theme, locales and home
   @override
   Widget build(BuildContext context) {
+    print(Provider.of<LanguageProvider>(context).appLocal);
+    print('blah');
     return MaterialApp(
       title: 'Flutter Notebook',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
             seedColor: Provider.of<ColorProvider>(context).selectedColor),
