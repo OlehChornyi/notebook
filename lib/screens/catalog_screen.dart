@@ -1,11 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:notebook/fb_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:notebook/screens/registration_and_login/welcome_screen.dart';
 import '../custom_provider.dart';
 import '../main.dart';
+import 'ad_helper.dart';
 import 'archive_screen.dart';
 import 'catalog_detail_screen.dart';
 import 'create_screen.dart';
@@ -21,15 +23,51 @@ class _CatalogScreenState extends State<CatalogScreen> {
   bool _isLoading = true;
   int _notesCount = 0;
 
+  late BannerAd _bannerAd;
+  bool _isBannerAdLoaded = false;
+
   @override
   void initState() {
     super.initState();
     _loadCatalogs().then((_) => _isLoading = false);
     _loadArchiveValues();
+    MobileAds.instance
+        .updateRequestConfiguration(RequestConfiguration(testDeviceIds: [
+      '60bad94b-e9d4-4501-aee9-a7cd321f84f2',
+      'a5af6922-abb5-4220-9cf6-e63405dd4859',
+      '00000000-0000-0000-0000-000000000000'
+    ]));
+    _createBannerAd();
   }
 
-  Future<void> _loadCatalogs() async{
-    await Provider.of<CatalogProvider>(context, listen: false).loadCatalogNames();
+  void _createBannerAd() {
+    _bannerAd = BannerAd(
+      adUnitId: AdHelper.bannerAdUnitId,
+      size: AdSize.banner,
+      request: const AdRequest(),
+      listener: BannerAdListener(
+        onAdLoaded: (_) {
+          setState(() {
+            _isBannerAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+        },
+      ),
+    );
+    _bannerAd.load();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _bannerAd.dispose();
+  }
+
+  Future<void> _loadCatalogs() async {
+    await Provider.of<CatalogProvider>(context, listen: false)
+        .loadCatalogNames();
     setState(() {});
   }
 
@@ -42,7 +80,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
 
   Future<void> _loadArchiveValues() async {
     List<Map<String, dynamic>> values =
-    await FirebaseHelper().fetchValuesByCatalog('Archive');
+        await FirebaseHelper().fetchValuesByCatalog('Archive');
 
     setState(() {
       _archiveValues = values;
@@ -61,7 +99,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
   @override
   Widget build(BuildContext context) {
     ColorProvider colorProvider = Provider.of<ColorProvider>(context);
-    bool isEng = Provider.of<LanguageProvider>(context).appLocal == Locale("en");
+    bool isEng =
+        Provider.of<LanguageProvider>(context).appLocal == Locale("en");
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -77,7 +116,9 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 MaterialPageRoute(
                     builder: (context) => CreateNoteScreen('Notes')),
               );
-              if (Provider.of<CatalogProvider>(context, listen: false).catalogNames.contains('Notes')){
+              if (Provider.of<CatalogProvider>(context, listen: false)
+                  .catalogNames
+                  .contains('Notes')) {
                 return;
               } else {
                 Provider.of<CatalogProvider>(context, listen: false)
@@ -137,13 +178,16 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 onChanged: (String? newValue) {
                   setState(() {
                     if (newValue == 'English') {
-                      Provider.of<LanguageProvider>(context, listen: false).changeLanguage(Locale("en"));
+                      Provider.of<LanguageProvider>(context, listen: false)
+                          .changeLanguage(Locale("en"));
                     } else if (newValue == 'Українська') {
-                      Provider.of<LanguageProvider>(context, listen: false).changeLanguage(Locale("uk"));
+                      Provider.of<LanguageProvider>(context, listen: false)
+                          .changeLanguage(Locale("uk"));
                     }
                   });
                 },
-                items: <String>['English', 'Українська'].map<DropdownMenuItem<String>>((String value) {
+                items: <String>['English', 'Українська']
+                    .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
                     child: Text(value),
@@ -162,7 +206,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
             ),
             Divider(),
             ListTile(
-              title: Text(_auth.currentUser!.email.toString(), style: TextStyle(color: Colors.black54)),
+              title: Text(_auth.currentUser!.email.toString(),
+                  style: TextStyle(color: Colors.black54)),
             ),
             ListTile(
               title: Text(AppLocalizations.of(context)!.translate('signOut')),
@@ -179,111 +224,136 @@ class _CatalogScreenState extends State<CatalogScreen> {
           ],
         ),
       ),
-      body: _isLoading ? Center(child: CircularProgressIndicator()) : RefreshIndicator(
-        onRefresh: () async{
-          await Provider.of<CatalogProvider>(context, listen: false).loadCatalogNames();
-          setState(() {});
-        },
-        child: SingleChildScrollView(
-          physics: AlwaysScrollableScrollPhysics(),
-          child: Container(
-            height: MediaQuery.of(context).size.height,
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  ReorderableListView.builder(
-                    shrinkWrap: true,
-                    itemCount:
-                        Provider.of<CatalogProvider>(context).catalogNames.length,
-                    itemBuilder: (context, index) {
-                      final catalogNames =
-                          Provider.of<CatalogProvider>(context).catalogNames;
-                      return Dismissible(
-                        key: Key(catalogNames[index]),
-                        direction: DismissDirection.endToStart,
-                        onDismissed: (direction) {
-                          FirebaseHelper()
-                              .deleteNotesWithCatalogName(catalogNames[index]);
-                          Provider.of<CatalogProvider>(context, listen: false)
-                              .removeCatalog(catalogNames[index]);
-                        },
-                        background: Container(
-                          alignment: AlignmentDirectional.centerEnd,
-                          color: Colors.red,
-                          child: Icon(Icons.delete, color: Colors.white),
-                        ),
-                        child: ListTile(
-                          tileColor: Theme.of(context).colorScheme.surfaceVariant,
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(catalogNames[index]),
-                              FutureBuilder<int>(
-                                initialData: 0,
-                                future: FirebaseHelper()
-                                    .countNotesByCatalog(catalogNames[index]),
-                                builder: (context, snapshot) {
-                                  int? notesCount = snapshot.data;
-                                  return Text('$notesCount '+AppLocalizations.of(context)!.translate('notes'));
+      bottomNavigationBar: _isBannerAdLoaded
+          ? SizedBox(
+              height: _bannerAd.size.height.toDouble(),
+              width: _bannerAd.size.width.toDouble(),
+              child: AdWidget(ad: _bannerAd),
+            )
+          : SizedBox(),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: () async {
+                await Provider.of<CatalogProvider>(context, listen: false)
+                    .loadCatalogNames();
+                setState(() {});
+              },
+              child: SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(),
+                child: Container(
+                  height: MediaQuery.of(context).size.height,
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        ReorderableListView.builder(
+                          shrinkWrap: true,
+                          itemCount: Provider.of<CatalogProvider>(context)
+                              .catalogNames
+                              .length,
+                          itemBuilder: (context, index) {
+                            final catalogNames =
+                                Provider.of<CatalogProvider>(context)
+                                    .catalogNames;
+                            return Dismissible(
+                              key: Key(catalogNames[index]),
+                              direction: DismissDirection.endToStart,
+                              onDismissed: (direction) {
+                                FirebaseHelper().deleteNotesWithCatalogName(
+                                    catalogNames[index]);
+                                Provider.of<CatalogProvider>(context,
+                                        listen: false)
+                                    .removeCatalog(catalogNames[index]);
+                              },
+                              background: Container(
+                                alignment: AlignmentDirectional.centerEnd,
+                                color: Colors.red,
+                                child: Icon(Icons.delete, color: Colors.white),
+                              ),
+                              child: ListTile(
+                                tileColor: Theme.of(context)
+                                    .colorScheme
+                                    .surfaceVariant,
+                                title: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(catalogNames[index]),
+                                    FutureBuilder<int>(
+                                      initialData: 0,
+                                      future: FirebaseHelper()
+                                          .countNotesByCatalog(
+                                              catalogNames[index]),
+                                      builder: (context, snapshot) {
+                                        int? notesCount = snapshot.data;
+                                        return Text('$notesCount ' +
+                                            AppLocalizations.of(context)!
+                                                .translate('notes'));
+                                      },
+                                    )
+                                  ],
+                                ),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => CatalogDetailScreen(
+                                          catalogNames[index]),
+                                    ),
+                                  );
                                 },
-                              )
-                            ],
-                          ),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    CatalogDetailScreen(catalogNames[index]),
                               ),
                             );
                           },
+                          onReorder: (oldIndex, newIndex) {
+                            setState(() {
+                              if (newIndex > oldIndex) {
+                                newIndex -= 1;
+                              }
+                              final catalogProvider =
+                                  Provider.of<CatalogProvider>(context,
+                                      listen: false);
+                              final String item = catalogProvider.catalogNames
+                                  .removeAt(oldIndex);
+                              catalogProvider.catalogNames
+                                  .insert(newIndex, item);
+                              catalogProvider.saveCatalogNames();
+                            });
+                          },
                         ),
-                      );
-                    },
-                    onReorder: (oldIndex, newIndex) {
-                      setState(() {
-                        if (newIndex > oldIndex) {
-                          newIndex -= 1;
-                        }
-                        final catalogProvider =
-                            Provider.of<CatalogProvider>(context, listen: false);
-                        final String item =
-                            catalogProvider.catalogNames.removeAt(oldIndex);
-                        catalogProvider.catalogNames.insert(newIndex, item);
-                        catalogProvider.saveCatalogNames();
-                      });
-                    },
+                        SizedBox(height: 24),
+                        ElevatedButton(
+                          onPressed: () async {
+                            // Open dialog to add a new catalog
+                            String newCatalogName = await showDialog(
+                              context: context,
+                              builder: (context) => AddCatalogDialog(),
+                            );
+                            if (newCatalogName != null &&
+                                newCatalogName.isNotEmpty) {
+                              setState(() {
+                                Provider.of<CatalogProvider>(context,
+                                        listen: false)
+                                    .addCatalog(newCatalogName);
+                                Provider.of<CatalogProvider>(context,
+                                        listen: false)
+                                    .saveCatalogNames(); // Save catalog names to shared preferences
+                                // Save catalog names to shared preferences
+                              });
+                            }
+                          },
+                          child: Text(AppLocalizations.of(context)!
+                              .translate('createCatalog')),
+                        ),
+                      ],
+                    ),
                   ),
-                  SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () async {
-                      // Open dialog to add a new catalog
-                      String newCatalogName = await showDialog(
-                        context: context,
-                        builder: (context) => AddCatalogDialog(),
-                      );
-                      if (newCatalogName != null && newCatalogName.isNotEmpty) {
-                        setState(() {
-                          Provider.of<CatalogProvider>(context, listen: false)
-                              .addCatalog(newCatalogName);
-                          Provider.of<CatalogProvider>(context, listen: false)
-                              .saveCatalogNames(); // Save catalog names to shared preferences
-                          // Save catalog names to shared preferences
-                        });
-                      }
-                    },
-                    child: Text(AppLocalizations.of(context)!.translate('createCatalog')),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }
