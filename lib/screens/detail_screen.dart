@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../main.dart';
-import 'ad_helper.dart';
+import '../ad_helper.dart';
 import 'catalog_detail_screen.dart';
 import 'edit_screen.dart';
 import 'package:notebook/fb_helper.dart';

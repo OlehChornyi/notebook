@@ -9,6 +9,25 @@
       "client_info": {
         "mobilesdk_app_id": "1:503107314297:android:8c17f5b1fdbfc3df3eaaa8",
         "android_client_info": {
+          "package_name": "com.example.notebook"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeKZ6B6NH0zNlt-IknmK_rTkVH6QQMYZ4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:503107314297:android:efccae294f4ff19f3eaaa8",
+        "android_client_info": {
           "package_name": "com.smartshift.notebook"
         }
       },

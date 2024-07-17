@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:notebook/screens/registration_and_login/welcome_screen.dart';
 import '../custom_provider.dart';
 import '../main.dart';
-import 'ad_helper.dart';
+import '../ad_helper.dart';
 import 'archive_screen.dart';
 import 'catalog_detail_screen.dart';
 import 'create_screen.dart';
@@ -26,6 +27,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
   late BannerAd _bannerAd;
   bool _isBannerAdLoaded = false;
 
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
   @override
   void initState() {
     super.initState();
@@ -38,6 +41,12 @@ class _CatalogScreenState extends State<CatalogScreen> {
       '00000000-0000-0000-0000-000000000000'
     ]));
     _createBannerAd();
+    analytics.logEvent(
+      name: 'screen_event',
+      parameters: <String, Object>{
+        'screen_entered': 'Catalog_screen',
+      },
+    );
   }
 
   void _createBannerAd() {

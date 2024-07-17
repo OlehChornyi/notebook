@@ -1,8 +1,9 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:notebook/fb_helper.dart';
 import '../main.dart';
-import 'ad_helper.dart';
+import '../ad_helper.dart';
 import 'catalog_screen.dart';
 import '../custom_provider.dart';
 import 'package:provider/provider.dart';
@@ -36,6 +37,13 @@ class _CatalogDetailScreenState extends State<CatalogDetailScreen> {
       '00000000-0000-0000-0000-000000000000'
     ]));
     _createBannerAd();
+    FirebaseAnalytics.instance.logEvent(
+      name: 'screen_event',
+      parameters: <String, Object>{
+        'screen_entered': 'Catalog_detail_screen',
+      },
+    );
+
   }
 
   void _createBannerAd() {

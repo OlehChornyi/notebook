@@ -15,12 +15,12 @@ if (localPropertiesFile.exists()) {
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
+    flutterVersionCode = '2'
 }
 
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) {
-    flutterVersionName = '1.0'
+    flutterVersionName = '1.6.1'
 }
 
 def keystoreProperties = new Properties()
@@ -31,7 +31,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace "com.example.notebook"
     compileSdkVersion flutter.compileSdkVersion
-    ndkVersion flutter.ndkVersion
+    ndkVersion "27.0.12077973"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -81,9 +81,10 @@ flutter {
 }
 
 dependencies {
-    implementation platform ("com.google.firebase:firebase-bom:32.7.4")
+    implementation platform ("com.google.firebase:firebase-bom:33.1.2")
     implementation 'com.android.support:multidex:1.0.3'
     implementation ("com.google.firebase:firebase-auth")
     implementation ("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-analytics")
 
 }
